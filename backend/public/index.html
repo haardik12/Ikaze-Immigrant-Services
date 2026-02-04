@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html
+  xmlns:v="urn:schemas-microsoft-com:vml"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>New Blog</title>
+
+    <!--[if mso]>
+      <xml>
+        <o:OfficeDocumentSettings>
+          <o:AllowPNG />
+          <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+      </xml>
+    <![endif]-->
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      table,
+      td {
+        border-collapse: collapse;
+      }
+      img {
+        border: 0;
+        outline: none;
+        text-decoration: none;
+        -ms-interpolation-mode: bicubic;
+      }
+      p {
+        margin: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+      <tr>
+        <td align="center">
+          <!-- MAIN CONTAINER -->
+          <table
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            role="presentation"
+            style="background-color: #ffffff"
+          >
+            <!-- HEADER -->
+            <tr>
+              <td align="center" style="padding: 20px">
+                <img
+                  src="https://res.cloudinary.com/blogappimagess/image/upload/v1767365599/email-hero_ghmhvf.jpg"
+                  width="120"
+                  alt="Logo"
+                  style="max-width: 120px"
+                />
+              </td>
+            </tr>
+
+            <!-- TITLE -->
+            <tr>
+              <td
+                align="center"
+                style="
+                  font-family: Arial, Helvetica, sans-serif;
+                  font-size: 22px;
+                  font-weight: bold;
+                  padding: 10px 20px;
+                "
+              >
+                {{TITLE}}
+              </td>
+            </tr>
+
+            <!-- BLOG IMAGE -->
+            <tr>
+              <td align="center" style="padding: 15px">
+                <img
+                  src="{{IMAGE_URL}}"
+                  alt="{{TITLE}}"
+                  style="width: 100%; max-width: 560px; height: auto"
+                />
+              </td>
+            </tr>
+
+            <!-- DESCRIPTION -->
+            <tr>
+              <td
+                style="
+                  font-family: Arial, Helvetica, sans-serif;
+                  font-size: 14px;
+                  line-height: 1.6;
+                  color: #333333;
+                  padding: 10px 20px;
+                "
+              >
+                {{DESCRIPTION}}...
+              </td>
+            </tr>
+
+            <!-- CTA BUTTON -->
+            <tr>
+              <td align="left" style="padding: 20px">
+                <!--[if mso]>
+                  <v:roundrect
+                    xmlns:v="urn:schemas-microsoft-com:vml"
+                    href="{{BLOG_URL}}"
+                    style="height:40px;v-text-anchor:middle;width:200px;"
+                    arcsize="0%"
+                    fillcolor="#fe98bd"
+                    stroke="f"
+                  >
+                    <w:anchorlock />
+                    <center style="color:#ffffff;font-size:14px;">
+                      READ MORE
+                    </center>
+                  </v:roundrect>
+                <![endif]-->
+
+                <!--[if !mso]><!-- -->
+                <a
+                  href="{{BLOG_URL}}"
+                  target="_blank"
+                  style="
+                    display: inline-block;
+                    background-color: #fe98bd;
+                    color: #ffffff;
+                    text-decoration: none;
+                    padding: 12px 22px;
+                    font-size: 14px;
+                  "
+                >
+                  READ MORE
+                </a>
+                <!--<![endif]-->
+              </td>
+            </tr>
+
+            <!-- DIVIDER -->
+            <tr>
+              <td style="padding: 20px">
+                <hr style="border: none; border-top: 1px solid #dddddd" />
+              </td>
+            </tr>
+
+            <!-- SOCIAL ICONS -->
+            <tr>
+              <td align="center" style="padding: 15px">
+                <a href="https://instagram.com" target="_blank">
+                  <img
+                    src="{{ASSET_BASE}}/images/image-3.png"
+                    width="32"
+                    alt="Instagram"
+                  />
+                </a>
+                &nbsp;
+                <a href="https://twitter.com" target="_blank">
+                  <img
+                    src="{{ASSET_BASE}}/images/image-4.png"
+                    width="32"
+                    alt="Twitter"
+                  />
+                </a>
+                &nbsp;
+                <a href="https://youtube.com" target="_blank">
+                  <img
+                    src="{{ASSET_BASE}}/images/image-7.png"
+                    width="32"
+                    alt="YouTube"
+                  />
+                </a>
+              </td>
+            </tr>
+
+            <!-- FOOTER -->
+            <tr>
+              <td
+                align="center"
+                style="
+                  font-family: Arial, Helvetica, sans-serif;
+                  font-size: 13px;
+                  color: #868686;
+                  padding: 10px 20px 25px;
+                "
+              >
+                You are receiving this email because you subscribed to our
+                newsletter.<br />
+                <a href="{{UNSUBSCRIBE_URL}}" style="color: #868686"
+                  >Unsubscribe</a
+                >
+              </td>
+            </tr>
+          </table>
+          <!-- END CONTAINER -->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

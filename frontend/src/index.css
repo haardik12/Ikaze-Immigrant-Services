@@ -1,0 +1,70 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-primary: #1F3A5F;
+  --color-secondary: #2F5EA8;
+  --color-accent: #C9A44D;
+  --color-surface: #F8FAFC;
+
+  --color-heading: #1E293B;
+  --color-body: #475569;
+  --color-muted: #64748B;
+
+  --font-heading: "Playfair Display", serif;
+  --font-body: "Inter", sans-serif;
+}
+
+/* for the blogs styling */
+.prose {
+  line-height: 1.9;
+  font-size: 1.05rem;
+}
+
+.prose p {
+  margin-bottom: 1.25rem;
+}
+
+.prose ol {
+  padding-left: 1.75rem;
+}
+
+.prose ul {
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+}
+
+.prose h2 {
+  margin-top: 2.5rem;
+}
+
+.prose h3 {
+  margin-top: 2rem;
+}
+
+.clamp-5 {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 1s ease forwards;
+}
