@@ -1,30 +1,42 @@
 import dotenv from 'dotenv'
-dotenv.config() // Load .env variables
+dotenv.config()
 
 import express from 'express'
+import axios from 'axios'
 import { emailQueue } from '../queue/queue.js'
 import Subscriber from '../models/Subscribers.js'
 import Brevo from '@getbrevo/brevo'
 
 const router = express.Router()
 
-// Initialize Brevo API client
+// Initialize Brevo API client (unchanged)
 const apiInstance = new Brevo.TransactionalEmailsApi()
 apiInstance.setApiKey(
   Brevo.TransactionalEmailsApiApiKeys.apiKey,
-  process.env.BREVO_API_KEY
+  process.env.BREVO_API_KEY,
 )
 
-// POST / - Handle email subscription
+// ==============================
+// POST /api/subscribe
+// ==============================
 router.post('/', async (req, res) => {
-  const { email, name } = req.body
+  const { email, name, captchaToken } = req.body
 
-  // Basic validation
+  // -----------------------
+  // VALIDATIONS
+  // -----------------------
+  if (!captchaToken) {
+    return res.status(400).json({
+      message: 'Captcha verification required',
+    })
+  }
+
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res
       .status(400)
       .json({ message: 'Invalid email address' })
   }
+
   if (!name || name.trim().length === 0) {
     return res
       .status(400)
@@ -32,11 +44,35 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // Save to DB
+    // -----------------------
+    // VERIFY reCAPTCHA
+    // -----------------------
+    const captchaResponse = await axios.post(
+      'https://www.google.com/recaptcha/api/siteverify',
+      null,
+      {
+        params: {
+          secret: process.env.RECAPTCHA_SECRET_KEY,
+          response: captchaToken,
+        },
+      },
+    )
+
+    if (!captchaResponse.data.success) {
+      return res.status(403).json({
+        message: 'Captcha verification failed',
+      })
+    }
+
+    // -----------------------
+    // SAVE SUBSCRIBER
+    // -----------------------
     const subscriber = new Subscriber({ email, name })
     await subscriber.save()
 
-    // Enqueue welcome email
+    // -----------------------
+    // SEND WELCOME EMAIL
+    // -----------------------
     await emailQueue.add('welcomeEmail', {
       email: subscriber.email,
       name: subscriber.name,
@@ -53,6 +89,7 @@ router.post('/', async (req, res) => {
         .status(409)
         .json({ message: 'Email already subscribed' })
     }
+
     console.error('Subscription error:', error)
     res
       .status(500)
@@ -60,7 +97,9 @@ router.post('/', async (req, res) => {
   }
 })
 
-// GET /unsubscribe - Handle email unsubscribe
+// ==============================
+// GET /unsubscribe
+// ==============================
 router.get('/unsubscribe', async (req, res) => {
   const { token } = req.query
 
@@ -74,11 +113,12 @@ router.get('/unsubscribe', async (req, res) => {
     const subscriber = await Subscriber.findOneAndDelete({
       unsubscribeToken: token,
     })
+
     if (!subscriber) {
       return res
         .status(404)
         .send(
-          '<h1>Subscriber not found or already unsubscribed</h1>'
+          '<h1>Subscriber not found or already unsubscribed</h1>',
         )
     }
 
