@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import axios from 'axios'
+import api from '../../../utils/Api.js'
 import Quill from 'quill'
-
 
 const AddBlogs = () => {
   const [title, setTitle] = useState('')
@@ -41,7 +40,7 @@ const AddBlogs = () => {
     try {
       const token = localStorage.getItem('token')
 
-      await axios.post(
+      await api.post(
         '/api/blogs/create',
         {
           title,

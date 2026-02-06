@@ -1,17 +1,17 @@
-import axios from 'axios';
+import api from '../../utils/Api.js'
 import React, { useEffect } from 'react'
 import { useState } from 'react'
-import { useNavigate} from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   })
 
   // const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   useEffect(() => {
     // Clear fields every time Login page mounts
@@ -20,15 +20,20 @@ const Login = () => {
 
   const { login } = useAuth()
 
-
   const handleChange = (e) => {
-    setFormData({...formData, [e.target.name]: e.target.value})
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    })
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
-      const res = await axios.post('/api/users/login', formData)
+      const res = await api.post(
+        '/api/users/login',
+        formData,
+      )
       login(res.data.token)
       navigate('/admin')
     } catch (error) {
@@ -42,7 +47,11 @@ const Login = () => {
           login
         </h2>
 
-        <form action='' autoComplete='off' onSubmit={handleSubmit}>
+        <form
+          action=''
+          autoComplete='off'
+          onSubmit={handleSubmit}
+        >
           <div className='mb-4'>
             <label className='block text-gray-600 text-sm font-medium mb-3'>
               Email

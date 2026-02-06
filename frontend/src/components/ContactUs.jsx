@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Nav from './Nav'
-import axios from 'axios'
+import api from '../utils/Api.js'
 import { FaBluesky } from 'react-icons/fa6'
 import { MdEmail } from 'react-icons/md'
 import { FaSquareXTwitter } from 'react-icons/fa6'
@@ -43,7 +43,7 @@ const ContactUs = () => {
     try {
       const API_BASE = import.meta.env.VITE_API_BASE || ''
 
-      await axios.post(`${API_BASE}/api/subscribe`, {
+      await api.post(`${API_BASE}/api/subscribe`, {
         ...formData,
         captchaToken,
       })

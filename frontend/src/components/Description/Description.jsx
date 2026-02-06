@@ -4,7 +4,7 @@ import { FiArrowLeft } from 'react-icons/fi'
 import { FaBluesky } from 'react-icons/fa6'
 import { MdEmail } from 'react-icons/md'
 import { FaSquareXTwitter } from 'react-icons/fa6'
-import axios from 'axios'
+import api from '../../utils/Api.js'
 
 const Description = () => {
   const { id } = useParams()
@@ -16,7 +16,7 @@ const Description = () => {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const res = await axios.get(`/api/blogs/${id}`)
+        const res = await api.get(`/api/blogs/${id}`)
         setBlog(res.data)
       } catch (err) {
         setError('Blog not found', err)

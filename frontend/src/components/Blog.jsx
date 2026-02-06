@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import Nav from './Nav'
 import BlogCard from './Blog card/BlogCard'
-import axios from 'axios'
+import api from '../utils/Api.js'
 
 const Blog = () => {
   const [blogs, setBlogs] = useState([])
 
   useEffect(() => {
-    axios
+    api
       .get('/api/blogs')
       .then((res) => setBlogs(res.data))
       .catch((err) => console.log(err))

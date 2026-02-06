@@ -2,16 +2,16 @@ import React from 'react'
 import BlogCard from '../../Blog card/BlogCard.jsx'
 import { useState } from 'react'
 import { useEffect } from 'react'
-import axios from 'axios'
-
+import api from '../../../utils/Api.js'
 
 const Dashboard = () => {
   const [blogs, setBlogs] = useState([])
 
   useEffect(() => {
-    axios.get('/api/blogs')
-      .then(res => setBlogs(res.data))
-      .catch(err => (console.log(err)))
+    api
+      .get('/api/blogs')
+      .then((res) => setBlogs(res.data))
+      .catch((err) => console.log(err))
   }, [])
   return (
     <div>

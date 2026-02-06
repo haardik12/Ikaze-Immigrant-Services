@@ -1,4 +1,4 @@
-import axios from 'axios'
+import api from '../../../utils/Api.js'
 import React, { useEffect, useRef, useState } from 'react'
 import { FiEdit, FiTrash, FiX } from 'react-icons/fi'
 import Quill from 'quill'
@@ -70,7 +70,7 @@ const EditBlogs = () => {
 
     try {
       const token = localStorage.getItem('token')
-      await axios.delete(`/api/blogs/delete/${id}`, {
+      await api.delete(`/api/blogs/delete/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -96,7 +96,7 @@ const EditBlogs = () => {
     try {
       const token = localStorage.getItem('token')
 
-      const res = await axios.put(
+      const res = await api.put(
         `/api/blogs/update/${selectedBlog._id}`,
         {
           title,
@@ -123,7 +123,7 @@ const EditBlogs = () => {
   // Fetch blogs
   // --------------------
   useEffect(() => {
-    axios
+    api
       .get('/api/blogs')
       .then((res) => setBlogs(res.data))
       .catch(console.log)
