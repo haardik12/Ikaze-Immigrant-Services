@@ -165,14 +165,11 @@ const ContactUs = () => {
                   <span>Bluesky</span>{' '}
                 </a>
                 <a
-                  href='#'
-                  target='mailto:Claudine@ikazeimmigrants.org?subject=Immigration%20Inquiry&body=Hello%20Claudine,%0D%0A%0D%0AI would like to inquire about your immigration services.%0D%0A%0D%0AThank you.'
-                  rel='noopener noreferrer'
+                  href='mailto:Claudine@ikazeimmigrants.org?subject=Immigration%20Inquiry&body=Hello%20Claudine,%0D%0A%0D%0AI would like to inquire about your immigration services.%0D%0A%0D%0AThank you.'
                   className='flex items-center space-x-4 hover:text-red-400 transition'
                 >
-                  {' '}
-                  <MdEmail size={23} />{' '}
-                  <span>Mail</span>{' '}
+                  <MdEmail size={23} />
+                  <span>Mail</span>
                 </a>
                 <a
                   href='https://x.com/ikazeservices?s=21&t=u1RWLWjrkW2NiGeKCO2ywQ'
