@@ -3,18 +3,35 @@ dotenv.config()
 
 import express from 'express'
 import axios from 'axios'
-import { emailQueue } from '../queue/queue.js'
 import Subscriber from '../models/Subscribers.js'
 import Brevo from '@getbrevo/brevo'
 
 const router = express.Router()
 
-// Initialize Brevo API client (unchanged)
-const apiInstance = new Brevo.TransactionalEmailsApi()
-apiInstance.setApiKey(
+// --------------------
+// Brevo setup
+// --------------------
+const brevo = new Brevo.TransactionalEmailsApi()
+brevo.setApiKey(
   Brevo.TransactionalEmailsApiApiKeys.apiKey,
   process.env.BREVO_API_KEY,
 )
+
+// --------------------
+// Email constants
+// --------------------
+const SENDER = {
+  email: 'contact@ikazeimmigrantadvocates.org',
+  name: 'Ikaze Immigrant Advocates',
+}
+
+const REPLY_TO = {
+  email: 'claudine@ikazeimmigrantadvocates.org',
+  name: 'Claudine Gasana',
+}
+
+const LOGO_URL = process.env.EMAIL_LOGO_URL
+const QR_URL = process.env.EMAIL_QR_URL
 
 // ==============================
 // POST /api/subscribe
@@ -71,17 +88,60 @@ router.post('/', async (req, res) => {
     await subscriber.save()
 
     // -----------------------
-    // SEND WELCOME EMAIL
+    // SEND WELCOME EMAIL (DIRECT)
     // -----------------------
-    await emailQueue.add('welcomeEmail', {
-      email: subscriber.email,
-      name: subscriber.name,
-      unsubscribeToken: subscriber.unsubscribeToken,
+    await brevo.sendTransacEmail({
+      to: [{ email: subscriber.email }],
+      sender: SENDER,
+      replyTo: REPLY_TO,
+      subject: 'Welcome to Ikaze Immigrant Advocates',
+      tags: ['welcome-email'],
+      htmlContent: `
+        <!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table width="600" style="background:#ffffff;border-radius:12px;overflow:hidden;">
+          <tr>
+            <td align="center" style="padding:24px;">
+              <img src="${LOGO_URL}" width="120" />
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;">
+              <h1>Welcome ${name} 👋</h1>
+              <p>
+                Thank you for subscribing to <strong>Ikaze Immigrant Advocates</strong>.
+                You’ll now receive updates and important news.
+              </p>
+
+              <hr style="margin:32px 0" />
+
+              <h3>Support Our Work</h3>
+              <p>Your support helps us empower immigrants with compassion and respect.</p>
+              <img src="${QR_URL}" width="140" />
+
+              <p style="font-size:12px;color:#777;margin-top:24px;">
+                <a href="${process.env.FRONTEND_URL}/unsubscribe?token=${subscriber.unsubscribeToken}">
+                  Unsubscribe
+                </a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+      `,
     })
 
     res.status(201).json({
       message:
-        'Subscribed successfully! A welcome email will be sent shortly.',
+        'Subscribed successfully! Welcome email sent.',
     })
   } catch (error) {
     if (error.code === 11000) {

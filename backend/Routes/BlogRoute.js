@@ -1,36 +1,64 @@
-import express from "express";
+import express from 'express'
 import mongoose from 'mongoose'
-import Blog from "../models/Blogs.js";
+import Blog from '../models/Blogs.js'
+import Subscriber from '../models/Subscribers.js'
 import { protect } from '../middleware/Auth.js'
-import NodeCache from 'node-cache';
-import { emailQueue } from "../queue/queue.js";
+import NodeCache from 'node-cache'
+import Brevo from '@getbrevo/brevo'
 
-const router = express.Router();
-const cache = new NodeCache({ stdTTL: 600 }); // Cache for 10 minutes
+const router = express.Router()
+const cache = new NodeCache({ stdTTL: 600 }) // 10 minutes
 
-// getting the blogs
+// --------------------
+// Brevo setup
+// --------------------
+const brevo = new Brevo.TransactionalEmailsApi()
+brevo.setApiKey(
+  Brevo.TransactionalEmailsApiApiKeys.apiKey,
+  process.env.BREVO_API_KEY,
+)
+
+const SENDER = {
+  email: 'contact@ikazeimmigrantadvocates.org',
+  name: 'Ikaze Immigrant Advocates',
+}
+
+const REPLY_TO = {
+  email: 'claudine@ikazeimmigrantadvocates.org',
+  name: 'Claudine Gasana',
+}
+
+const LOGO_URL = process.env.EMAIL_LOGO_URL
+const QR_URL = process.env.EMAIL_QR_URL
+
+// ==============================
+// GET all blogs
+// ==============================
 router.get('/', async (req, res) => {
-    try {
-        const cacheKey = 'blogs';
-        let blogs = cache.get(cacheKey);
-        if (blogs) {
-            return res.status(200).json(blogs);
-        }
+  try {
+    const cacheKey = 'blogs'
+    let blogs = cache.get(cacheKey)
 
-        blogs = await Blog.find()
-          .sort({ createdAt: -1 })
-          .select('title description img createdAt')
-          .lean();
-        
-        cache.set(cacheKey, blogs);
-        res.status(200).json(blogs);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({message : 'Server error'});
+    if (blogs) {
+      return res.status(200).json(blogs)
     }
+
+    blogs = await Blog.find()
+      .sort({ createdAt: -1 })
+      .select('title description img createdAt')
+      .lean()
+
+    cache.set(cacheKey, blogs)
+    res.status(200).json(blogs)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error' })
+  }
 })
 
-// getting a single blog
+// ==============================
+// GET single blog
+// ==============================
 router.get('/:id', async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res
@@ -51,8 +79,9 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-
-// creating the blogs
+// ==============================
+// CREATE blog + send newsletter
+// ==============================
 router.post('/create', protect, async (req, res) => {
   try {
     const { title, description } = req.body
@@ -63,21 +92,73 @@ router.post('/create', protect, async (req, res) => {
       })
     }
 
-    // Create blog
     const newBlog = await Blog.create({
       title,
       description,
     })
 
-    // Clear cache
     cache.del('blogs')
 
-    // 🔥 ENQUEUE NEWSLETTER EMAIL
-    await emailQueue.add('newsletterEmail', {
-      blogId: newBlog._id.toString(),
-      title: newBlog.title,
-      description: newBlog.description,
-    })
+    // -----------------------
+    // SEND NEWSLETTER EMAILS
+    // -----------------------
+    const subscribers = await Subscriber.find(
+      {},
+      'email unsubscribeToken',
+    ).lean()
+
+    for (const sub of subscribers) {
+      await brevo.sendTransacEmail({
+        to: [{ email: sub.email }],
+        sender: SENDER,
+        replyTo: REPLY_TO,
+        subject: `New Blog: ${newBlog.title}`,
+        tags: ['newsletter'],
+        htmlContent: `
+<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table width="600" style="background:#ffffff;border-radius:12px;overflow:hidden;">
+          <tr>
+            <td align="center" style="padding:24px;">
+              <img src="${LOGO_URL}" width="120" />
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;">
+              <h2>${newBlog.title}</h2>
+              <p>${String(newBlog.description).substring(0, 250)}...</p>
+
+              <p>
+                <a href="${process.env.FRONTEND_URL}/blog/${newBlog._id}">
+                  Read full article →
+                </a>
+              </p>
+
+              <hr style="margin:32px 0" />
+
+              <h3>Support Our Mission</h3>
+              <img src="${QR_URL}" width="140" />
+
+              <p style="font-size:12px;color:#777;margin-top:24px;">
+                <a href="${process.env.FRONTEND_URL}/unsubscribe?token=${sub.unsubscribeToken}">
+                  Unsubscribe
+                </a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+        `,
+      })
+    }
 
     res.status(201).json(newBlog)
   } catch (error) {
@@ -86,51 +167,50 @@ router.post('/create', protect, async (req, res) => {
   }
 })
 
-
-
-// updating the blogs
-// Update Blog (Admin Only)
+// ==============================
+// UPDATE blog
+// ==============================
 router.put('/update/:id', protect, async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id)
-
     if (!blog) {
       return res
         .status(404)
         .json({ message: 'Blog not found' })
     }
 
-    // Update fields (text only)
     blog.title = req.body.title || blog.title
-    blog.description = req.body.description || blog.description
+    blog.description =
+      req.body.description || blog.description
 
     const updatedBlog = await blog.save()
-
-    cache.del('blogs') // Invalidate cache
+    cache.del('blogs')
 
     res.json(updatedBlog)
   } catch (error) {
-    console.error(error)
     res.status(500).json({ message: 'Server error' })
   }
 })
 
-
-// Delete Blog (Admin Only)
-router.delete("/delete/:id", protect, async (req, res) => {
-    try {
-      const blog = await Blog.findById(req.params.id)
-      if (!blog)
-        return res
-          .status(404)
-          .json({ message: 'Blog not found' })  
-
-      await blog.deleteOne()
-      cache.del('blogs'); // Invalidate cache
-      res.json({ message: 'Blog deleted successfully' })
-    } catch (error) {
-      res.status(500).json({ message: 'Server error' })
+// ==============================
+// DELETE blog
+// ==============================
+router.delete('/delete/:id', protect, async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id)
+    if (!blog) {
+      return res
+        .status(404)
+        .json({ message: 'Blog not found' })
     }
-});
 
-export default router;
+    await blog.deleteOne()
+    cache.del('blogs')
+
+    res.json({ message: 'Blog deleted successfully' })
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' })
+  }
+})
+
+export default router
