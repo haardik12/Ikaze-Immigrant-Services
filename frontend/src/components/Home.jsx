@@ -113,7 +113,7 @@ const Home = () => {
                 rel='noopener noreferrer'
                 className='inline-block bg-slate-800 text-white px-8 py-3 rounded-md hover:bg-slate-700 transition'
               >
-                Form link →
+                Donate →
               </a>
 
               <p className='text-xs text-slate-500 mt-4'>
@@ -170,17 +170,6 @@ const Home = () => {
           </div>
 
           {/* TRANSPARENCY / TRUST SECTION */}
-          <div className='max-w-3xl mx-auto text-center'>
-            <h3 className='text-2xl font-serif text-slate-800 mb-4'>
-              Transparency & Accountability
-            </h3>
-            <p className='text-slate-600 leading-relaxed'>
-              We are committed to responsible stewardship of
-              every donation. Contributions are used
-              exclusively to support our programs, outreach
-              efforts, and operational sustainability.
-            </p>
-          </div>
         </div>
       </section>
 

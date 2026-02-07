@@ -6,12 +6,25 @@ import api from '../utils/Api.js'
 const Blog = () => {
   const [blogs, setBlogs] = useState([])
 
-  useEffect(() => {
-    api
-      .get('/api/blogs')
-      .then((res) => setBlogs(res.data))
-      .catch((err) => console.log(err))
-  }, [])
+ useEffect(() => {
+   // 1️⃣ Load cached blogs instantly (if available)
+   const cachedBlogs = localStorage.getItem('blogs')
+   if (cachedBlogs) {
+     setBlogs(JSON.parse(cachedBlogs))
+   }
+
+   // 2️⃣ Fetch fresh blogs in background
+   api
+     .get('/api/blogs')
+     .then((res) => {
+       setBlogs(res.data)
+       localStorage.setItem(
+         'blogs',
+         JSON.stringify(res.data),
+       )
+     })
+     .catch((err) => console.log(err))
+ }, [])
 
   return (
     <>
