@@ -185,7 +185,7 @@ router.get('/unsubscribe', async (req, res) => {
     res.send(`
       <h1>Unsubscribed Successfully</h1>
       <p>You have been removed from our newsletter.</p>
-      <a href="${process.env.FRONTEND_URL}">Back to site</a>
+      <a href="${process.env.API_URL}/api/subscribe/unsubscribe?token=${subscriber.unsubscribeToken}"</a>
     `)
   } catch (error) {
     console.error('Unsubscribe error:', error)
