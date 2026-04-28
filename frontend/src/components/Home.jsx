@@ -5,7 +5,7 @@ import '../index.css'
 import { FaBluesky } from 'react-icons/fa6'
 import { MdEmail } from 'react-icons/md'
 import { FaSquareXTwitter } from 'react-icons/fa6'
-import donateQR from '../../assets/Donate-qr.png'
+import donateQR from '../../assets/new-qr-updated-ikaze-form.png'
 import { Link } from 'react-router-dom'
 
 const services = [
